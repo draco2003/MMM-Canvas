@@ -19,10 +19,14 @@ module.exports = NodeHelper.create({
 
     getCANVAS: function(payload) {
         var key = payload[0];
-        var courses = payload[1];
+        var coursesOld = payload[1];
         var urlbase = payload[2];
         var count = 0;
         var self = this;
+        var courses = [];
+
+        getCourses();
+        
         courses.forEach(runCourses);
         var timer = setInterval(function() {
             if (count == courses.length) {
@@ -36,6 +40,21 @@ module.exports = NodeHelper.create({
                 count = 0;
             }
         }, 400);
+
+        function getCourses() {
+            var url = "https://"+ urlbase +"/api/v1/courses?access_token=" + key + "&per_page=30&enrollment_state";
+            fetch(url, {
+                method: "GET"
+            })
+            .then(response => console.log(response.status) || response) // output the status and return response
+            .then(response => response.json()) 
+            .then(result => {
+                console.log(result);
+                for (var j in result) {
+                    courses.push(j.id);
+                }
+            });
+        }
 
         function runCourses(item, index) {
             var url = "https://"+ urlbase +"/api/v1/courses/" + courses[index] + "/assignments?access_token=" + key + "&per_page=30&bucket=upcoming&order_by=due_at";
