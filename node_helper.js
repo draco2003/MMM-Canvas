@@ -1,11 +1,10 @@
 /* Magic Mirror
  * Module: MMM-CANVAS
  *
- * By Chase Cromwell
+ * By Dan R.
  *
  */
 const NodeHelper = require('node_helper');
-const request = require('request');
 var smallpayload = [
     ["", "", ""],
 ];
@@ -40,17 +39,14 @@ module.exports = NodeHelper.create({
 
         function runCourses(item, index) {
             var url = "https://"+ urlbase +"/api/v1/courses/" + courses[index] + "/assignments?access_token=" + key + "&per_page=30&bucket=upcoming&order_by=due_at";
-            request({
-                url: url,
-                method: 'GET'
-            }, (error, response, body) => {
-                if (!error && response.statusCode == 200) {
-                    var result = JSON.parse(body);
-                    for (var j in result) {
-                        smallpayload.push([result[j].name, result[j].due_at, index]);
-                    }
-                } else {
-                  smallpayload.push(["ERROR", JSON.parse(error), ""]);
+            fetch(url, {
+                method: "GET"
+            })
+            .then(response => console.log(response.status) || response) // output the status and return response
+            .then(response => response.json()) 
+            .then(result => {
+                for (var j in result) {
+                    smallpayload.push([result[j].name, result[j].due_at, index]);
                 }
                 finalpayload.push(smallpayload);
                 count++;
