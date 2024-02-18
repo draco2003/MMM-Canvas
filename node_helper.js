@@ -26,8 +26,6 @@ module.exports = NodeHelper.create({
         var courses = [];
 
         getCourses();
-        
-        courses.forEach(runCourses);
         var timer = setInterval(function() {
             if (count == courses.length) {
                 self.sendSocketNotification('CANVAS_RESULT', finalpayload);
@@ -42,22 +40,21 @@ module.exports = NodeHelper.create({
         }, 400);
 
         function getCourses() {
-            var url = "https://"+ urlbase +"/api/v1/courses?access_token=" + key + "&per_page=30&enrollment_state";
+            var url = "https://"+ urlbase +"/api/v1/courses?access_token=" + key + "&per_page=30&enrollment_state=active";
             fetch(url, {
                 method: "GET"
             })
             .then(response => console.log(response.status) || response) // output the status and return response
             .then(response => response.json()) 
             .then(result => {
-                console.log(result);
                 for (var j in result) {
-                    courses.push(j.id);
+                    runCourses(j.id);
                 }
             });
         }
 
-        function runCourses(item, index) {
-            var url = "https://"+ urlbase +"/api/v1/courses/" + courses[index] + "/assignments?access_token=" + key + "&per_page=30&bucket=upcoming&order_by=due_at";
+        function runCourses(courseId) {
+            var url = "https://"+ urlbase +"/api/v1/courses/" + courseId + "/assignments?access_token=" + key + "&per_page=30&bucket=upcoming&order_by=due_at";
             fetch(url, {
                 method: "GET"
             })
